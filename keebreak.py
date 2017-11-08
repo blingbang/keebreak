@@ -40,7 +40,7 @@ with open('databases/Matthias_Kroell.kdbx', 'rb') as f:
 #    crypt_init_vector_len = crypt_init_vector_tup[1]
 
 
-    print("\n","Masterseed:",master_seed_hex,"\n","Transformationseed:",trans_seed_hex,"\n","Transformation rounds:",trans_rounds_int)
+
 
 
 def gen_credentials(password):
@@ -48,12 +48,13 @@ def gen_credentials(password):
     creds_a.update(password.encode("utf-8"))
 
     creds_b = hashlib.sha256()
-    creds_b.update((creds_a.hexdigest().encode("utf-8")))
-    return creds_b.hexdigest()
+    creds_b.update((creds_a.digest()))
+    return creds_b.digest()
 
 #def gen_trans_credentials(credentials,trans_rounds,trans_seed):
 #    while rounds > 0:
 #        hashlib.
 
 
-print(gen_credentials("4567"))
+print(binascii.hexlify(gen_credentials("4567")))
+print("\n","Masterseed:",master_seed_hex,"\n","Transformationseed:",trans_seed_hex,"\n","Transformation rounds:",trans_rounds_int)
