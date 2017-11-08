@@ -27,6 +27,7 @@ with open('databases/Matthias_Kroell.kdbx', 'rb') as f:
     master_seed = master_seed_tup[2]
     master_seed_hex = binascii.hexlify(master_seed)
 
+
     trans_seed_tup = header.entries[3]
     trans_seed_len = trans_seed_tup[1]
     trans_seed = trans_seed_tup[2]
@@ -43,12 +44,16 @@ with open('databases/Matthias_Kroell.kdbx', 'rb') as f:
 
 
 def gen_credentials(password):
-    pw = password.encode("utf-8")
-    credentials = hashlib.sha256(hashlib.sha256(pw))
-    return credentials
+    creds_a = hashlib.sha256()
+    creds_a.update(password.encode("utf-8"))
+
+    creds_b = hashlib.sha256()
+    creds_b.update((creds_a.hexdigest().encode("utf-8")))
+    return creds_b.hexdigest()
 
 #def gen_trans_credentials(credentials,trans_rounds,trans_seed):
 #    while rounds > 0:
 #        hashlib.
 
-print(gen_credentials("1111"))
+
+print(gen_credentials("4567"))
