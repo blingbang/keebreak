@@ -1,6 +1,16 @@
 import struct
 import binascii
 import hashlib
+import Crypto
+
+def gen_credentials(password):
+    creds_a = hashlib.sha256()
+    creds_a.update(password.encode("utf-8"))
+
+    creds_b = hashlib.sha256()
+    creds_b.update((creds_a.digest()))
+
+    return creds_b.digest()
 
 class KbdxHeader():
     def __init__(self, data):
@@ -36,25 +46,26 @@ with open('databases/Matthias_Kroell.kdbx', 'rb') as f:
     trans_rounds = (header.entries[4])[2]
     trans_rounds_int = int.from_bytes(trans_rounds,byteorder='little')
 
-#    crypt_init_vector_tup = header.entries[7]
-#    crypt_init_vector_len = crypt_init_vector_tup[1]
+    crypt_init_vector_tup = header.entries[5]
+    crypt_init_vector_len = crypt_init_vector_tup[1]
+    crypt_init_vector = crypt_init_vector_tup[2]
+    crypt_init_vector_hex = binascii.hexlify(crypt_init_vector)
+
+    start_bytes_tup = header.entries[6]
+    start_bytes_len = start_bytes_tup[1]
+    start_bytes = start_bytes_tup[2]
+    start_bytes_hex = binascii.hexlify(start_bytes)
 
 
-
-
-
-def gen_credentials(password):
-    creds_a = hashlib.sha256()
-    creds_a.update(password.encode("utf-8"))
-
-    creds_b = hashlib.sha256()
-    creds_b.update((creds_a.digest()))
-    return creds_b.digest()
 
 #def gen_trans_credentials(credentials,trans_rounds,trans_seed):
 #    while rounds > 0:
 #        hashlib.
 
 
-print(binascii.hexlify(gen_credentials("4567")))
+#print(binascii.hexlify(gen_credentials("4567")))
+print(header.entries)
 print("\n","Masterseed:",master_seed_hex,"\n","Transformationseed:",trans_seed_hex,"\n","Transformation rounds:",trans_rounds_int)
+print('GenCreds:', binascii.hexlify(gen_credentials("1567")))
+print(crypt_init_vector_hex)
+print(start_bytes_hex)
