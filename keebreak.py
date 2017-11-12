@@ -1,3 +1,4 @@
+import argparse
 import binascii
 import struct
 from Crypto.Hash import SHA256
@@ -67,47 +68,52 @@ class KbdxHeader():
             self.entries.append((e_id, len(e_cryptdata), e_cryptdata))
 
 
-with open('databases/Matthias_Kroell.kdbx', 'rb') as f:
-    f_bytes = bytearray(f.read())
-    f_body = f_bytes[3 * 4:]
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Crack a KeePass-database')
+    parser.add_argument('file', help='KeePass file')
+    args = parser.parse_args()
 
-    header = KbdxHeader(f_body)
-
-    master_seed_tup = header.entries[2]
-    master_seed_len = master_seed_tup[1]
-    master_seed = master_seed_tup[2]
-    master_seed_hex = binascii.hexlify(master_seed)
-
-    trans_seed_tup = header.entries[3]
-    trans_seed_len = trans_seed_tup[1]
-    trans_seed = trans_seed_tup[2]
-    trans_seed_hex = binascii.hexlify(trans_seed)
-
-    trans_rounds = (header.entries[4])[2]
-    trans_rounds_int = int.from_bytes(trans_rounds, byteorder='little')
-
-    crypt_init_vector_tup = header.entries[5]
-    crypt_init_vector_len = crypt_init_vector_tup[1]
-    crypt_init_vector = crypt_init_vector_tup[2]
-    crypt_init_vector_hex = binascii.hexlify(crypt_init_vector)
-
-    start_bytes_tup = header.entries[6]
-    start_bytes_len = start_bytes_tup[1]
-    start_bytes = start_bytes_tup[2]
-    start_bytes_hex = binascii.hexlify(start_bytes)
-
-    crypt_data_tup = header.entries[9]
-    crypt_data = crypt_data_tup[2]
-    crypt_data_hex = binascii.hexlify(crypt_data)
-
-print(header.entries)
-print("\n", "Masterseed:", master_seed_hex, "\n", "Transformationseed:", trans_seed_hex, "\n", "Transformation rounds:",
-      trans_rounds_int)
-print(' AES init vector', crypt_init_vector_hex)
-print(' First 32b decrypted data:', start_bytes_hex)
-print(' First 32b encrypted data:', crypt_data_hex)
-
-print(' GenCreds testoutput:', binascii.hexlify(gen_credentials("1111")))
-print(' GenTransCreds test:', binascii.hexlify(gen_trans_credentials(10000, gen_credentials("1111"), trans_seed, crypt_init_vector_hex)))
-print(' GenKey test:', binascii.hexlify(gen_key(master_seed_hex, gen_trans_credentials(10000, gen_credentials("1111"), trans_seed, crypt_init_vector_hex))))
-print('decrypt test: ')
+    with open(args.file, 'rb') as f:
+        f_bytes = bytearray(f.read())
+        f_body = f_bytes[3 * 4:]
+    
+        header = KbdxHeader(f_body)
+    
+        master_seed_tup = header.entries[2]
+        master_seed_len = master_seed_tup[1]
+        master_seed = master_seed_tup[2]
+        master_seed_hex = binascii.hexlify(master_seed)
+    
+        trans_seed_tup = header.entries[3]
+        trans_seed_len = trans_seed_tup[1]
+        trans_seed = trans_seed_tup[2]
+        trans_seed_hex = binascii.hexlify(trans_seed)
+    
+        trans_rounds = (header.entries[4])[2]
+        trans_rounds_int = int.from_bytes(trans_rounds, byteorder='little')
+    
+        crypt_init_vector_tup = header.entries[5]
+        crypt_init_vector_len = crypt_init_vector_tup[1]
+        crypt_init_vector = crypt_init_vector_tup[2]
+        crypt_init_vector_hex = binascii.hexlify(crypt_init_vector)
+    
+        start_bytes_tup = header.entries[6]
+        start_bytes_len = start_bytes_tup[1]
+        start_bytes = start_bytes_tup[2]
+        start_bytes_hex = binascii.hexlify(start_bytes)
+    
+        crypt_data_tup = header.entries[9]
+        crypt_data = crypt_data_tup[2]
+        crypt_data_hex = binascii.hexlify(crypt_data)
+    
+    print(header.entries)
+    print("\n", "Masterseed:", master_seed_hex, "\n", "Transformationseed:", trans_seed_hex, "\n", "Transformation rounds:",
+          trans_rounds_int)
+    print(' AES init vector', crypt_init_vector_hex)
+    print(' First 32b decrypted data:', start_bytes_hex)
+    print(' First 32b encrypted data:', crypt_data_hex)
+    
+    print(' GenCreds testoutput:', binascii.hexlify(gen_credentials("1111")))
+    print(' GenTransCreds test:', binascii.hexlify(gen_trans_credentials(10000, gen_credentials("1111"), trans_seed, crypt_init_vector_hex)))
+    print(' GenKey test:', binascii.hexlify(gen_key(master_seed_hex, gen_trans_credentials(10000, gen_credentials("1111"), trans_seed, crypt_init_vector_hex))))
+    print('decrypt test: ')
